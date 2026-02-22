@@ -2,7 +2,7 @@ import re
 import unittest
 import subprocess
 import glob
-from os import path
+import os
 
 from gradescope_utils.autograder_utils.decorators import weight, number
 
@@ -18,17 +18,20 @@ class TestBase(unittest.TestCase):
                 raise AssertionError(f'Pattern {pattern} not allowed in {file}!')
 
     def assertModulePasses(self, name):
-        if not path.isfile(f'/autograder/grader/tests/{name}_test.v'):
+        if not os.path.isfile(f'/autograder/grader/tests/{name}_test.v'):
             raise AssertionError(f'{name}_test.v not found!')
 
         res = subprocess.call(['iverilog', '-o', f'/tmp/{name}_test.vvp', f'/autograder/grader/tests/{name}_test.v', '-l/autograder/grader/tests/dff.v', '-l/autograder/grader/tests/muxlib.v', '-l/autograder/grader/tests/nand.v'] + [f'-l{p}' for p in glob.glob('/autograder/source/*.v')])
         if res != 0:
             raise AssertionError('Unable to build verilog + test script to vvp!')
 
+        wd = os.getcwd()
+        os.chdir('tests')
         out = open(f'/tmp/{name}.out', 'w')
         res = subprocess.call(['vvp', f'/tmp/{name}_test.vvp'], stdout=out)
         if res != 0:
             raise AssertionError('Unable to execute vvp verilog test!')
+        os.chdir(wd)
 
         res = subprocess.call(['diff', f'/tmp/{name}.out', f'/autograder/grader/tests/expected-outputs/{name}.cmp', '-qsw', '--strip-trailing-cr'])
         if res != 0:
