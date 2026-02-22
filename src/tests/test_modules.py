@@ -38,27 +38,27 @@ class TestBase(unittest.TestCase):
             raise AssertionError('Module output does not mach the expected output!')
 
 class TestModules(TestBase): 
-    @weight(95/5)
+    @weight(20)
     @number(1)
     def test_memory(self):
         self.assertModulePasses('memory')
 
-    @weight(95/5)
+    @weight(55)
     @number(2)
     def test_cpu(self):
         self.assertModulePasses('cpu_external')
 
-    @weight(95/5)
+    @weight(20/3)
     @number(3)
     def test_computer_add(self):
         self.assertModulePasses('computer_add')
 
-    @weight(95/5)
+    @weight(20/3)
     @number(4)
     def test_computer_max(self):
         self.assertModulePasses('computer_max')
 
-    @weight(95/5)
+    @weight(20/3)
     @number(5)
     def test_computer_rect(self):
         self.assertModulePasses('computer_rect')
