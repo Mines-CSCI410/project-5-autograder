@@ -18,13 +18,10 @@ class TestBase(unittest.TestCase):
                 raise AssertionError(f'Pattern {pattern} not allowed in {file}!')
 
     def assertModulePasses(self, name):
-        if not path.isfile(f'/autograder/source/{name}.v'):
-            raise AssertionError(f'{name}.v not found!')
         if not path.isfile(f'/autograder/grader/tests/{name}_test.v'):
             raise AssertionError(f'{name}_test.v not found!')
-        self.assertFileContains(f'/autograder/source/{name}.v', f'module student_{name}')
 
-        res = subprocess.call(['iverilog', '-o', f'/tmp/{name}_test.vvp', f'/autograder/grader/tests/{name}_test.v'] + [f'-l{p}' for p in glob.glob('/autograder/source/*.v')])
+        res = subprocess.call(['iverilog', '-o', f'/tmp/{name}_test.vvp', f'/autograder/grader/tests/{name}_test.v', '-l/autograder/grader/tests/dff.v', '-l/autograder/grader/tests/muxlib.v', '-l/autograder/grader/tests/nand.v'] + [f'-l{p}' for p in glob.glob('/autograder/source/*.v')])
         if res != 0:
             raise AssertionError('Unable to build verilog + test script to vvp!')
 
@@ -38,4 +35,27 @@ class TestBase(unittest.TestCase):
             raise AssertionError('Module output does not mach the expected output!')
 
 class TestModules(TestBase): 
-    pass
+    @weight(95/5)
+    @number(1)
+    def test_memory(self):
+        self.assertModulePasses('memory')
+
+    @weight(95/5)
+    @number(2)
+    def test_cpu(self):
+        self.assertModulePasses('cpu_external')
+
+    @weight(95/5)
+    @number(3)
+    def test_computer_add(self):
+        self.assertModulePasses('computer_add')
+
+    @weight(95/5)
+    @number(4)
+    def test_computer_max(self):
+        self.assertModulePasses('computer_max')
+
+    @weight(95/5)
+    @number(5)
+    def test_computer_rect(self):
+        self.assertModulePasses('computer_rect')
