@@ -38,9 +38,9 @@ class TestBase(unittest.TestCase):
             raise AssertionError('Unable to execute vvp verilog test!')
         os.chdir(wd)
 
-        res = subprocess.call(['diff', f'/tmp/{name}.out', f'/autograder/grader/tests/expected-outputs/{name}.cmp', '-qsw', '--strip-trailing-cr'])
-        if res != 0:
-            raise AssertionError('Module output does not mach the expected output!')
+        res = subprocess.run(['diff', f'/tmp/{name}.out', f'/autograder/grader/tests/expected-outputs/{name}.cmp', '-swy', '--strip-trailing-cr'], capture_output=True, text=True)
+        if res.returncode != 0:
+            raise AssertionError(f'Module output does not mach the expected output!\n{res.stdout}')
 
 class TestModules(TestBase): 
     @weight(20)
